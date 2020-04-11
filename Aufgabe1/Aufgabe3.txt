@@ -1,0 +1,18 @@
+SoSe2020 Betriebssysteme Praktikum 
+Paul Dieterich 8836
+Aufgabenblatt 1 Aufgabe 3
+10.03.2020
+find . -mtime +365 -type f -name "*.class - exec rm -i {} \;
+
+"find . filename" - sucht im aktuellen Ordnerverzeichnis 
+" -mtime +365" - (-mtime n)	File's  data  was last modified n*24 hours ago.  See the comments for -atime to understand
+				how rounding affects the interpretation of file modification times.
+ 
+"-type f" - f = regular file 
+"-name "*.class" - sucht alle dateien die mit ".class" aenden 
+"-exec" execut command; true if 0 status is returned.  All following arguments to find are  taken
+	to  be  arguments  to the command until an argument consisting of `;' is encountered.	
+
+
+
+der befehl loescht alle dateien die auf .class aenden und in den im letzen 365Tagen nicht bearbeitet wurden. 

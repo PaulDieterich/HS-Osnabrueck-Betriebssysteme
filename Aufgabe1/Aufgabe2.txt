@@ -1,0 +1,21 @@
+SoSe2020 Betriebsysteme
+Paul Dieterich matrikelnummer:883966
+Aufgabenblatt 1 Aufgabe 2
+10.03.2020
+
+
+
+gz entpacken: 
+gunzip <dateiname>.tar.gz
+
+tar entpacken
+tar -xf <dateiname>.tar
+
+
+wenn ich per "rm" ?file1 loesche dann loescht er auch die dateien *file1,1file1,2file1, 3fiel1
+
+2.
+mit rm -rf werden die ordner geloescht
+
+
+in "./rootTest/dir1" wenn man rm * .txt eingibt loescht er alle, da linux kein papier korb hat.

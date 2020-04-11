@@ -1,0 +1,49 @@
+SoSe2020 Betriebsysteme
+Paul Dieterich matrikelnummer:
+Aufgabenblatt 1 Aufgabe 1
+10.03.2020
+
+
+- "man" 		: manual viwer 
+			  mit zahlen kann man durch die wehlen. mit -<> kommt man zu weiteren 
+			  erklaerungne
+		1   Executable programs or shell commands
+     		2   System calls (functions provided by the kernel)
+       		3   Library calls (functions within program libraries)
+       		4   Special files (usually found in /dev)
+       		5   File formats and conventions eg /etc/passwd
+       		6   Games
+       		7   Miscellaneous (including macro packages and conventions), e.g. man(7), groff(7)
+       		8   System administration commands (usually only for root)
+       		9   Kernel routines [Non standard]
+
+
+- "uname" 		: betriebsystem informatioen
+- "whatis","which"	: gibt die beschreibung des gesuchten zurueck
+- "ps"			: 
+			-g: grplist
+- "kill"		: beendet zeug
+- "ls"			: listet alle dateien an. mit --color kann man sich die farblichen unterschieden 				  anzeigen lassen
+			 -als <dateiname> zeigt nur die datei 
+- "mkdir"		: erstellt ordner 
+			  -m: set file mode(as in cmod)
+- "rm"			: entfnt dateien und ordner
+			  -f: force
+			  -i: promt before removal
+			  -d: remove empty directories
+			  -r: remove direcotries and their contents recursively
+- "cp"			: kopiert datei.  (cp source destination) 
+- "mv"			: move, rename
+			  wenn man kein anderes verzeichnis angibt als zweiten parameter 
+			  sonnern ein datei namen mit endung
+- "more"		: ist ein filter zum seitenweise durchblaettern duch text
+- "cat"			: anzeige von inhalt einer datei
+- "head"		: gibt die ersten 10(als default) zeilen der datei zurueck
+- "tail"		: gibt die letzen 10(als default) zeichen der datei zurueck
+- "tar"			: tape archive. Es ist ein archivierungs datei format.
+- "gzip"		: comprimert oder decomprimert dateien
+
+
+- "write"		: write to a file descriptor
+
+
