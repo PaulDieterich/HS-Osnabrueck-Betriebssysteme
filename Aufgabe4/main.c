@@ -1,3 +1,9 @@
+/*
+Paul Dieterich, Matrikelnummer: 883966
+Jan Weimer, Matrikelnummer: 868487
+*/
+
+
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -12,6 +18,13 @@ void sayHello(){
 	printf("Welcome to my own shell\n"); //Begruessung
 }
 
+/*
+getInput
+Dient zur Nutzereingabe
+Rueckgabewert: int
+Uebergabewert: char* str
+Bedingung: char* str muss laenger als 0 sein.
+*/
 int getInput(char* str){
 	int max = 1000;
 	fgets(str, max,stdin );
@@ -21,7 +34,12 @@ int getInput(char* str){
 		return 1;
 	}
 }
-
+/*
+printDirectory
+Dient zur Ausgabe vom PS1
+Uebergabewert: char* username
+username wird ermittelt aus getenv("USER") in Main(){}
+*/
 void printDirectory(char* username){
 
 	char cwd[1024];
@@ -30,28 +48,40 @@ void printDirectory(char* username){
 
 }
 
+/*
+createProcess
+Dient zur Kindprozesserstellung
+Uebergabewert: char** a
+
+*/
 void createProcess(char** a){
 	/* TODO */
-	pid_t pid = fork();
+	pid_t pid = fork(); // erstellt Kindprozess.
 	if(pid < 0){
 		printf(" Konnte nicht erstellt werden\n");
 	} else if(pid == 0){
 //		printf(" Kind process wurde erzeugt\n");
-		if(execvp(a[0], a) < 0)
-			printf(" execvp ausgefuerung faild\n");
+		if(execvp(a[0], a) < 0) //execvp = wird ueberprueft ob uebergabe
+					//	   ausfuerbar ist.
+			printf(" execvp Ausfuerung faild\n");
 		exit(0);
 	} else{
-		wait(NULL);
+		wait(NULL); // Elternprozess wartet, dass Kindprozess terminiert wird.
 	}
 }
 
 void help(){
-//	printf("nutze 'exit', 'cd', 'set' oder 'export' \n");
+	printf("nutze 'exit', 'cd', 'set' oder 'export' \n");
 }
-
+/*
+handler
+Dient zur Befehlsauswahl eigener Befehle
+Uebergabewerte: char** args
+Rueckgabewert: int
+*/
 int handler(char** args){
 	int switchArguments = 0 , i , comands = 4;
-	char* ListOfComands[] = {"exit", "cd", "set", "export"};
+	char* ListOfComands[] = {"exit", "cd", "set", "export","help"};
 
 
     //in der Schleife wird das erste Argument mit den gegebenen Befehlen verglichen und bestimmt
@@ -75,13 +105,23 @@ int handler(char** args){
 			case 4:
 				printf("export\n");
 				return 1;
-			default:
+			case 5:
 				help();
+				return 1;
+			default:
 				break;
      }
 return 0;
 }
+/*
+handelProcess
 
+Verarbeitet die Nutzeringabe zu Argumenten, die als Befehle unserer Shell dienen.
+Fuehrt Systemcall aus wenn notwendig.
+
+Uebergabeparameter: char* str, char** args
+
+*/
 void handelProcess(char* str, char** args){
     int process,i;
     strtok(str,"\n");
@@ -101,10 +141,17 @@ void handelProcess(char* str, char** args){
 }
 
 
-
+/*
+main
+Uebergabeparameter: int argc, char* argv[]
+argc = Anzahl der Argumente
+argv[] = Pointer Array, die auf die uebergegebenden Argumente zeigen.
+Bedingung: wenn getInput(input) != 1 ist dann geht er wieder hoch zur while-schleife und
+	   startet von vorn
+*/
 int main(int argc, char* argv[]){
 	char input[1000], *parsedArgs[100];
-	char* username = getenv("USER"); // erfassung des Nutzernames
+	char* username = getenv("USER"); // Erfassung des Nutzernames
 
 	sayHello();
 	while(1){
