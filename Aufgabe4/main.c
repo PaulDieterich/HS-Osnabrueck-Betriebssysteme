@@ -36,7 +36,7 @@ void createProcess(char** a){
 	if(pid < 0){
 		printf(" Konnte nicht erstellt werden\n");
 	} else if(pid == 0){
-		printf(" Kind process wurde erzeugt\n");
+//		printf(" Kind process wurde erzeugt\n");
 		if(execvp(a[0], a) < 0)
 			printf(" execvp ausgefuerung faild\n");
 		exit(0);
@@ -46,7 +46,7 @@ void createProcess(char** a){
 }
 
 void help(){
-	printf("nutze 'exit', 'cd', 'set' oder 'export' \n");
+//	printf("nutze 'exit', 'cd', 'set' oder 'export' \n");
 }
 
 int handler(char** args){
@@ -83,7 +83,6 @@ return 0;
 }
 
 void handelProcess(char* str, char** args){
-/*TODO: */
     int process,i;
     strtok(str,"\n");
     //innerhalb der Schleife wird der Input als Argumente verarbeitet
@@ -106,7 +105,6 @@ void handelProcess(char* str, char** args){
 int main(int argc, char* argv[]){
 	char input[1000], *parsedArgs[100];
 	char* username = getenv("USER"); // erfassung des Nutzernames
-//	char eing;
 
 	sayHello();
 	while(1){
