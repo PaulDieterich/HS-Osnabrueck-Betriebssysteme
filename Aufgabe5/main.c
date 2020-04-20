@@ -4,7 +4,6 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <string.h>
-#include <readline/readline.h>
 
 
 
@@ -14,7 +13,7 @@ void sayHello(){
 
 int getInput(char* str){
 	int max = 1000;
-	fgets(str, max,stdin );
+	fgets(str, max,stdin);
 	if(strlen(str) != 0){
 		return 0;
 	}else{
@@ -48,19 +47,19 @@ void createProcess(char** a){
 void createProcessPiped(char** args, char** argsPiped){
 
     int pipefd[2];
-    pid_t p1, p2;
+    pid_t p;
     //hier werden die beiden Deskriptoren mit pipe() erzeugt
     if(pipe(pipefd) < 0){
         printf("\nPipe konnte nicht erstellt werden");
         return;
     }
-    p1 = fork();
-    if(p1 < 0){
+    p = fork();
+    if(p < 0){
         printf("\nKindprozess konnte nicht erstellt werden");
         return;
     }
 
-    if(p1 == 0){
+    if(p == 0){
         //erstes Kindprozess executing
         //wird in das zweite Argument eingelesen (dient als Eingabestrom
         close(pipefd[0]);
@@ -72,15 +71,15 @@ void createProcessPiped(char** args, char** argsPiped){
         }
     } else {
         //Elternprozess executing
-        p2 = fork();
+        p = fork();
 
-        if(p2 < 0){
+        if(p < 0){
             printf("\nKindprozess konnte nicht erstellt werden");
             return;
         }
 
         //Kind 2 executing
-        if(p2 == 0){
+        if(p == 0){
             close(pipefd[1]);
             dup2(pipefd[0], STDIN_FILENO);
             close(pipefd[0]);
@@ -90,8 +89,10 @@ void createProcessPiped(char** args, char** argsPiped){
             }
         } else {
             // Elternprozess ausgeführt, wartet für zwei Kindprozessen
-            wait(NULL);
-            wait(NULL);
+            close(pipefd[0]);
+            close(pipefd[1]);
+            int j;
+            waitpid(p,&j,0);
         }
     }
 }
@@ -121,10 +122,39 @@ int handler(char** args){
 				chdir(args[1]);
 				return 0;
 			case 3:
-				printf("set\n");
+				//printf("set\n");
+				if(args[1] == NULL){
+                    return 0;
+				}
+				char* v = ' ';
+				int i = 1;
+				while(v!= NULL && args[i] != NULL){
+                    v = getenv(args[i]);
+                    if(v!=NULL){
+                    printf("%s\n", v);
+                    } else {
+                        printf("Nicht vorhanden\n");
+                    }
+                    i++;
+				}
 				return 0;
 			case 4:
-				printf("export\n");
+				//printf("export\n");
+				if(args[1]== NULL){
+                    return 0;
+				}
+				int j = 1;
+				while(args[j]!=NULL){
+                    char* export[2];
+                    export[0]=strtok(args[j],"=");
+                    export[1]=strtok(NULL,"=");
+                    if(export[0]!=NULL && export[1]!=NULL){
+                        setenv(export[0],export[1],1);
+                    } else {
+                        printf("Angabe inkorrekt\n");
+                    }
+                    j++;
+				}
 				return 0;
 			default:
 				help();
@@ -145,10 +175,28 @@ void argsHandler(char* str,char** args){
     }
 }
 
+/*char *trimwhitespace(char *str){
+    char *end;
+    // Trim leading space
+    while(isspace((unsigned char)*str)) str++;
+    if(*str == 0)  // All spaces?
+        return str;
+    // Trim trailing space
+    end = str + strlen(str) - 1;
+    while(end > str && isspace((unsigned char)*end)) end--;
+    // Write new null terminator character
+    end[1] = '\0';
+    return str;
+} Ansatz um Leerzeichen bei Pipes zu kürzen*/
+
+//Diese Funktion dient dazu Pipes zu erkennen
+//Das erste Argument wird in pipe[0] und das Zweite in pipe[1] gespeichert
+//Wenn pipe[1] = NULL ist, dann ist kein pipe vorhanden
 int pipeHandler(char* str, char** pipe){
     int i;
     for (i=0; i < 2; i++){
         pipe[i] = strsep(&str, "|");
+        //pipe[i] = trimwhitespace(pipe[i]);
         if(pipe[i] == NULL)
             break;
     }
@@ -166,9 +214,12 @@ void handelProcess(char* str, char** args){
     int process, piped = 0;
 
     piped = pipeHandler(str, strPiped);
+    // wenn eine Pipe erkannt wird, dann haben wir 2 ArgsArrays, die wir verarbeiten
     if(piped){
         argsHandler(strPiped[0], args);
+
         argsHandler(strPiped[1], argsPiped);
+        //printf(strPiped[1]);
     }
     else{
         argsHandler(str,args);
