@@ -1,37 +1,27 @@
-/**************************************************************
-*Aufgabe 6 - Praktikum Betriebsysteme
-* Paul Dieterich, Jan Weimer
-*
-*
-* To Do:
-* - ...
-**************************************************************/
-
 #include <stdio.h>
-#include <stdlib.h>
+#include <unistd.h>
 #include <pthread.h>
-
-
-
-void *entry_point(void *value) {
-    printf("hello from the second thread :)\n");
-
-    int* num = (int*) value;
-
-    printf("the value of value is %d\n", *num);
+void* myTurn(void * arg){
+    int *intr = (int*)arg;
+    for(int i = 0; i < 8; i++) {
+        sleep(1);
+        printf("My Turn! %d %d\n",i,*intr);
+        (*intr)++;
+    }
     return NULL;
 }
-
-int main(int argc, char **argv) {
-    pthread_t thread;
-
-    printf("hello from the first thread :D\n");
-
-    int num = 1;
-
-    pthread_create(&thread, NULL, entry_point, &num);
-
-    pthread_join(thread, NULL);
-
-    return EXIT_SUCCESS;
+void yourTurn(){
+    for(int i = 0; i < 5; i++) {
+        sleep(1);
+        printf("Your Turn! %d\n",i);
+    }
+}
+int main() {
+    int v = 5;
+    pthread_t newtread;
+    pthread_create(&newtread, NULL,myTurn,&v);
+    yourTurn();
+    pthread_join(&newtread,NULL);
+    printf("thread's done: v=%d", v);
+    return 0;
 }

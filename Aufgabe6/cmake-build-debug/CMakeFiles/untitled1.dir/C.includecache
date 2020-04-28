@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/pjd-vm/Betriebssysteme/Aufgabe6/main.c
+stdio.h
+-
+stdlib.h
+-
+pthread.h
+-
+
