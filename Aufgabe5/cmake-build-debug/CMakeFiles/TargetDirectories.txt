@@ -1,0 +1,2 @@
+/home/pjd/Documents/Semester3/Betriebssysteme/Praikikum/Betriebssysteme/Aufgabe5/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/pjd/Documents/Semester3/Betriebssysteme/Praikikum/Betriebssysteme/Aufgabe5/cmake-build-debug/CMakeFiles/edit_cache.dir

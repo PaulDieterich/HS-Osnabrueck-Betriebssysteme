@@ -1,0 +1,15 @@
+a)yes | (sleep 10; cat -n)
+Datenübertragung wird unterbrochen (broken pipe)
+In der Bash wird dies unendlich ausgeführt
+
+b)"konnte das zweite Command nicht ausführen" wir ausgegeben
+In der Bash wird nichts ausgegeben
+
+c)
+
+d)1.mit ps die Prozess IDs ermittelt
+2. folgenden Befehl benutzt kill *Elternprozess ID* | cat main.c
+3. führt cat main.c auf und terminiert dann das Programm 
+die Bash lässt sich dadurch nicht terminieren
+
+e)Rollen bei der Eingabe werden getauscht
