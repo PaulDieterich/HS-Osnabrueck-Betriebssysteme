@@ -6,5 +6,6 @@
   <li>Aufgabe 3</li>
   <li>Aufgabe 4</li>
   <li>Aufgabe 5</li>
+  <li>Aufgabe 6</li>
 </ul>
 
