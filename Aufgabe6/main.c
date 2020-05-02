@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
 
 
     pthread_join(&readThread, NULL);
-    joinThreadArray(threadArray[],NULL);
+    joinThreadArray(threadArray[],NULL); //pthread_join function für alle pthreads im threadArray
 
 
     return 0;
