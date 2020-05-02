@@ -123,6 +123,33 @@ Aufgabe6/fast:
 	$(MAKE) -f CMakeFiles/Aufgabe6.dir/build.make CMakeFiles/Aufgabe6.dir/build
 .PHONY : Aufgabe6/fast
 
+main.o: main.c.o
+
+.PHONY : main.o
+
+# target to build an object file
+main.c.o:
+	$(MAKE) -f CMakeFiles/Aufgabe6.dir/build.make CMakeFiles/Aufgabe6.dir/main.c.o
+.PHONY : main.c.o
+
+main.i: main.c.i
+
+.PHONY : main.i
+
+# target to preprocess a source file
+main.c.i:
+	$(MAKE) -f CMakeFiles/Aufgabe6.dir/build.make CMakeFiles/Aufgabe6.dir/main.c.i
+.PHONY : main.c.i
+
+main.s: main.c.s
+
+.PHONY : main.s
+
+# target to generate assembly for a file
+main.c.s:
+	$(MAKE) -f CMakeFiles/Aufgabe6.dir/build.make CMakeFiles/Aufgabe6.dir/main.c.s
+.PHONY : main.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -132,6 +159,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... Aufgabe6"
+	@echo "... main.o"
+	@echo "... main.i"
+	@echo "... main.s"
 .PHONY : help
 
 

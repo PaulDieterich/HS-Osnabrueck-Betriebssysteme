@@ -82,7 +82,7 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/pjd-vm/Betriebssysteme/Aufgabe6/main.cpp">
+		<Unit filename="/home/pjd-vm/Betriebssysteme/Aufgabe6/main.c">
 			<Option target="Aufgabe6"/>
 		</Unit>
 		<Unit filename="/home/pjd-vm/Betriebssysteme/Aufgabe6/CMakeLists.txt">

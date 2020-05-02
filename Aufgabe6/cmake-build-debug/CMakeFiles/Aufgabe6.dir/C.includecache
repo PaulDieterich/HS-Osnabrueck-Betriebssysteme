@@ -13,4 +13,8 @@ unistd.h
 -
 pthread.h
 -
+string.h
+-
+stdlib.h
+-
 
