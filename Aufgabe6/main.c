@@ -56,15 +56,15 @@ int main() {
     }
 
 
+//download sites
+    printf("Anzahl threads:");
+    scanf("%d",&anzahlThreads);
+
 
 
     pthread_create(&th, NULL, readFile, q);
     pthread_join(th, NULL);
 
-
-//download sites
-    printf("Anzahl threads:");
-    scanf("%d",&anzahlThreads);
 
 
     struct timeval tvbegin, tvend;
@@ -184,6 +184,7 @@ void *readFile(void *q) {
         if (&q2->full) {
             printf ("QUEUE IS FULL.\n");
             pthread_cond_wait (&q2->notFull, &q2->lock);
+            break;
         }
         queueAdd(q2, url);
         pthread_mutex_unlock(&q2->lock);
