@@ -19,7 +19,7 @@ typedef struct {
     long head, tail;
     int full, empty;
     pthread_mutex_t lock;
-    pthread_cond_t *notFull, *notEmpty;
+    pthread_cond_t notFull, notEmpty;
 } queue;
 
 
