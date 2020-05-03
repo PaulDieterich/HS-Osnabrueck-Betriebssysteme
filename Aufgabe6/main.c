@@ -23,6 +23,74 @@ typedef struct {
 } queue;
 
 
+char strParse(char *input, char **parse) {
+
+    for (int i = 0; i < maxChar; i++) {
+        parse[i] = strsep(&input, " ");
+        if (parse[i] == NULL) {
+            break;
+        }
+        if (strlen(parse[i]) == 0) {
+            i--;
+        }
+    }
+}
+queue* queueInit(void);
+void* readFile(void*);
+void* writeFile(void*);
+int main(int args, char* argv[]) { //
+    char* filemane = argv[1];
+    int anzahlThreads = 2; // argv[2]
+    queue *q = queueInit();
+    pthread_t threadArr[anzahlThreads];
+
+    fgets(input, MAX_INPUT, filemane);
+    input[strcspn(input, "\n")] = '\0';
+
+   /* printf("Filename:");
+
+    if ((void *) input[0] == NULL || *input == ' ') {
+        printf("No input");
+        exit(0);
+    } else {
+        strParse(input, parse);
+    }
+    */
+
+
+
+    pthread_t readerThread;
+    pthread_create(&readerThread, NULL, readFile, q);
+    pthread_join(readerThread, NULL);
+
+
+//download sites
+    //printf("Anzahl threads:");
+    //scanf("%d",&anzahlThreads);
+
+    struct timeval tvbegin, tvend;
+    gettimeofday(&tvbegin,NULL);
+
+
+    for (int i = 0; i < anzahlThreads; i++) {
+        printf("Create thread %d\n", i);
+        pthread_create(&threadArr[i], NULL, writeFile, q);
+    }
+
+    for (int i = 0; i < anzahlThreads; i++) {
+        pthread_join(threadArr[i], NULL);
+    }
+
+    gettimeofday(&tvend, NULL);
+
+    printf("%lu", (tvend.tv_sec - tvbegin.tv_sec)*1000 +(tvend.tv_usec-tvbegin.tv_usec)/1000); //print duration
+    printf("ms\n");
+
+    return 0;
+
+}
+
+
 
 
 int queueSize(queue *q) {
@@ -95,21 +163,7 @@ void queueAdd(queue *q, char *in) {
 
 
 }
-
-char strParse(char *input, char **parse) {
-
-    for (int i = 0; i < maxChar; i++) {
-        parse[i] = strsep(&input, " ");
-        if (parse[i] == NULL) {
-            break;
-        }
-        if (strlen(parse[i]) == 0) {
-            i--;
-        }
-    }
-}
-
-void *readFd(void *q) {
+void *readFile(void *q) {
 
     queue *q2 = (queue *) q;
 
@@ -135,7 +189,7 @@ void *readFd(void *q) {
     return NULL;
 }
 
-void *writeFd(void *q) {
+void *writeFile(void *q) {
     queue *tmp = (queue *) q;
     char *argv[2];
     argv[0] = "--webreq-delay 0";
@@ -149,12 +203,11 @@ void *writeFd(void *q) {
         char *url = strdup(queueRead(q));
         char *downloadUrl = strdup(url);
 
-
         pthread_mutex_unlock(&lock);
         pthread_mutex_destroy(&lock);
         strtok(url, "/");
-        char *domain = strtok(NULL, "/");
 
+        char *domain = strtok(NULL, "/");
         int id = (int) pthread_self();
         printf("%d",id);
 
@@ -164,58 +217,3 @@ void *writeFd(void *q) {
 
         webreq_download(downloadUrl, filename);
     }
-
-
-
-}
-
-int main() {
-    char **args;
-    int anzahlThreads;
-    queue *q = NULL;
-
-
-    printf("Filename:");
-    fgets(input, MAX_INPUT, stdin);
-    input[strcspn(input, "\n")] = '\0';
-    if ((void *) input[0] == NULL || *input == ' ') {
-        printf("No input");
-        exit(0);
-    } else {
-        strParse(input, parse);
-    }
-
-    q = queueInit();
-
-    pthread_t th;
-    pthread_create(&th, NULL, readFd, q);
-    pthread_join(th, NULL);
-
-
-//download sites
-    printf("Anzahl threads:");
-    scanf("%d",&anzahlThreads);
-
-
-    struct timeval tvbegin, tvend;
-    gettimeofday(&tvbegin,NULL);
-
-    pthread_t threadArr[anzahlThreads];
-    for (int i = 0; i < anzahlThreads; i++) {
-        printf("Create thread %d\n", i);
-        pthread_create(&threadArr[i], NULL, writeFd, q);
-    }
-
-    for (int i = 0; i < anzahlThreads; i++) {
-        pthread_join(threadArr[i], NULL);
-    }
-
-    gettimeofday(&tvend, NULL);
-
-    printf("%lu", (tvend.tv_sec - tvbegin.tv_sec)*1000 +(tvend.tv_usec-tvbegin.tv_usec)/1000); //print duration
-    printf("ms\n");
-
-    return 0;
-
-}
-
