@@ -9,8 +9,6 @@
 /home/pjd-vm/Betriebssysteme/Aufgabe6/main.c
 stdio.h
 -
-unistd.h
--
 pthread.h
 -
 string.h
