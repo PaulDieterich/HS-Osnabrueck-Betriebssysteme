@@ -183,10 +183,10 @@ void *readFile(void *q) {
             *pos = '\0';
         }
         pthread_mutex_lock(&lock);
-        if(q2->full){
+        /*if(q2->full){
             printf("queue is FULL");
             pthread_cond_wait(q2->notFull,&lock);
-        }
+        } */
         queueAdd(q2, url);
         printf("Add to Queue %d", i);
         pthread_mutex_unlock(&lock);
