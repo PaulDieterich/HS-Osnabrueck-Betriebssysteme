@@ -40,11 +40,9 @@ void* readFile(void*);
 void* writeFile(void*);
 int main() {     
     int anzahlThreads;
-    queue *q = NULL;
-    q = queueInit();
+    queue *q = queueInit();
+    pthread_t th; pthread_t threadArr[anzahlThreads];
 
-    pthread_t th ;
-    pthread_t threadArr[anzahlThreads];
     printf("Filename:");
     fgets(input, MAX_INPUT, stdin);
     input[strcspn(input, "\n")] = '\0';
@@ -55,11 +53,8 @@ int main() {
         strParse(input, parse);
     }
 
-
-//download sites
     printf("Anzahl threads:");
     scanf("%d",&anzahlThreads);
-
 
 
     pthread_create(&th, NULL, readFile, q);
@@ -88,9 +83,6 @@ int main() {
     return 0;
 
 }
-
-
-
 
 int queueSize(queue *q) {
     int rtr = (q->tail) - (q->head);
@@ -187,6 +179,7 @@ void *readFile(void *q) {
             break;
         }
         queueAdd(q2, url);
+        printf("readFile: Zur liste inzugefügte URL: %s.\n",url);
         pthread_mutex_unlock(&q2->lock);
         pthread_mutex_destroy(&q2->lock);
     }
@@ -201,8 +194,7 @@ void *writeFile(void *q) {
 
     webreq_init(2, argv);
 
-
-    for(int i = 0; i < QUEUESIZE ; i++){
+    for(int i = 0; i < QUEUESIZE; i++){
     //while (!(tmp->empty)) {
         pthread_mutex_lock(&tmp->lock);
         if(&tmp->empty){
@@ -217,7 +209,7 @@ void *writeFile(void *q) {
         strtok(url, "/");
 
         char *domain = strtok(NULL, "/");
-        int id = (int) pthread_self();
+        unsigned int id = (unsigned int) pthread_self();
         printf("%d", id);
 
         char filename[64];
