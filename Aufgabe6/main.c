@@ -19,7 +19,7 @@ typedef struct {
     char *buf[QUEUESIZE];
     long head, tail;
     int full, empty;
-
+    pthread_cond_t *notFull, *notEmpty;
 } queue;
 
 
@@ -38,45 +38,45 @@ char strParse(char *input, char **parse) {
 queue* queueInit(void);
 void* readFile(void*);
 void* writeFile(void*);
-int main(int args, char* argv[]) { //
-    char* filemane = argv[1];
-    int anzahlThreads = 2; // argv[2]
-    queue *q = queueInit();
+int main() {     
+    int anzahlThreads;
+    queue *q = NULL;
+    q = queueInit();
+    pthread_t readerThread;
     pthread_t threadArr[anzahlThreads];
-
-    fgets(input, MAX_INPUT, filemane);
+    printf("Filename:");
+    fgets(input, MAX_INPUT, stdin);
     input[strcspn(input, "\n")] = '\0';
-
-   /* printf("Filename:");
-
     if ((void *) input[0] == NULL || *input == ' ') {
         printf("No input");
         exit(0);
     } else {
         strParse(input, parse);
     }
-    */
+
+    printf("Anzahl threads:");
+    scanf("%d",&anzahlThreads);
 
 
 
-    pthread_t readerThread;
-    pthread_create(&readerThread, NULL, readFile, q);
-    pthread_join(readerThread, NULL);
 
 
-//download sites
-    //printf("Anzahl threads:");
-    //scanf("%d",&anzahlThreads);
+
+
 
     struct timeval tvbegin, tvend;
     gettimeofday(&tvbegin,NULL);
 
 
+    //create threads
+    pthread_create(&readerThread, NULL, readFile, q);
     for (int i = 0; i < anzahlThreads; i++) {
         printf("Create thread %d\n", i);
         pthread_create(&threadArr[i], NULL, writeFile, q);
     }
 
+    //join threads
+    pthread_join(readerThread, NULL);
     for (int i = 0; i < anzahlThreads; i++) {
         pthread_join(threadArr[i], NULL);
     }
@@ -164,8 +164,8 @@ void queueAdd(queue *q, char *in) {
 
 }
 void *readFile(void *q) {
-
     queue *q2 = (queue *) q;
+    int i = 0;
 
     FILE *fd_in;
     fd_in = fopen(parse[0], "r");
@@ -178,13 +178,23 @@ void *readFile(void *q) {
     char *pos;
 
     while (fgets(url, sizeof(url), fd_in) != NULL) {
+
         if ((pos = strchr(url, '\n')) != NULL) {
             *pos = '\0';
         }
         pthread_mutex_lock(&lock);
+        if(q2->full){
+            printf("queue is FULL");
+            pthread_cond_wait(q2->notFull,&lock);
+        }
         queueAdd(q2, url);
+        printf("Add to Queue %d", i);
         pthread_mutex_unlock(&lock);
+        pthread_cond_signal(q2->notEmpty);
+
         pthread_mutex_destroy(&lock);
+
+        i++;
     }
     return NULL;
 }
@@ -217,4 +227,5 @@ void *writeFile(void *q) {
 
         webreq_download(downloadUrl, filename);
     }
+    printf("QUEUE IS EMPTY");
 }
