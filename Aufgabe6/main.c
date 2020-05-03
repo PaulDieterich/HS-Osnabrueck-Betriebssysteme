@@ -173,11 +173,11 @@ void *readFile(void *q) {
             *pos = '\0';
         }
         pthread_mutex_lock(&q2->lock);
-        if (&q2->full) {
-            printf ("QUEUE IS FULL.\n");
-            pthread_cond_wait (&q2->notFull, &q2->lock);
+        /*if (&q2->full) {
+            printf("QUEUE IS FULL.\n");
+            pthread_cond_wait(&q2->notFull, &q2->lock);
             break;
-        }
+        }*/
         queueAdd(q2, url);
         printf("readFile: Zur liste inzugefügte URL: %s.\n",url);
         pthread_mutex_unlock(&q2->lock);
@@ -197,10 +197,10 @@ void *writeFile(void *q) {
     for(int i = 0; i < QUEUESIZE; i++){
     //while (!(tmp->empty)) {
         pthread_mutex_lock(&tmp->lock);
-        if(&tmp->empty){
+        /*  if(&tmp->empty){
             printf ("QUEUE IS EMPTY.\n");
             pthread_cond_wait (&tmp->notFull, &tmp->lock);
-        }
+        }*/
         char *url = strdup(queueRead(q));
         char *downloadUrl = strdup(url);
         queueDel(tmp,url); //Queue vom eintrag befrien damit wieder platz wird.
@@ -218,4 +218,6 @@ void *writeFile(void *q) {
 
         webreq_download(downloadUrl, filename);
     }
+
 }
+
