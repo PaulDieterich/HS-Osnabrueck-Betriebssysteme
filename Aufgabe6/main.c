@@ -12,14 +12,13 @@
 int threadsize = 10;
 char input[maxChar];
 char *parse[maxChar];
-pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
-int test;
+
 
 typedef struct {
     char *buf[QUEUESIZE];
     long head, tail;
     int full, empty;
-
+    pthread_mutex_t lock;
 } queue;
 
 
@@ -42,6 +41,7 @@ int main() {
     int anzahlThreads;
     queue *q = NULL;
     q = queueInit();
+
     pthread_t th ;
     pthread_t threadArr[anzahlThreads];
     printf("Filename:");
@@ -179,10 +179,10 @@ void *readFile(void *q) {
         if ((pos = strchr(url, '\n')) != NULL) {
             *pos = '\0';
         }
-        pthread_mutex_lock(&lock);
+        pthread_mutex_lock(&q2->lock);
         queueAdd(q2, url);
-        pthread_mutex_unlock(&lock);
-        pthread_mutex_destroy(&lock);
+        pthread_mutex_unlock(&q2->lock);
+        pthread_mutex_destroy(&q2->lock);
     }
     return NULL;
 }
@@ -194,15 +194,14 @@ void *writeFile(void *q) {
     argv[1] = "--webreq-path download";
 
     webreq_init(2, argv);
-    int i = 0;
 
-    pthread_mutex_lock(&lock);
+    pthread_mutex_lock(&tmp->lock);
     while (!(tmp->empty)) {
         char *url = strdup(queueRead(q));
         char *downloadUrl = strdup(url);
 
-        pthread_mutex_unlock(&lock);
-        pthread_mutex_destroy(&lock);
+        pthread_mutex_unlock(&tmp->lock);
+        pthread_mutex_destroy(&tmp->lock);
         strtok(url, "/");
 
         char *domain = strtok(NULL, "/");
