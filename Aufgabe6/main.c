@@ -207,7 +207,7 @@ void *writeFile(void *q) {
 
         char *domain = strtok(NULL, "/");
         int id = (int) pthread_self();
-        printf("%d",id);
+        printf("%d", id);
 
         char filename[64];
         snprintf(filename, sizeof(filename), "%i_%s.html", id, domain);
@@ -215,3 +215,4 @@ void *writeFile(void *q) {
 
         webreq_download(downloadUrl, filename);
     }
+}
