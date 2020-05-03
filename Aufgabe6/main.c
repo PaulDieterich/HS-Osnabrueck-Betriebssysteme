@@ -1,6 +1,3 @@
-//
-// Created by pjd-vm on 03.05.20.
-//
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,12 +7,13 @@
 #include <sys/time.h>
 
 #define maxChar 256
-#define QUEUESIZE 10 
+#define QUEUESIZE 30
 
 int threadsize = 10;
 char input[maxChar];
 char *parse[maxChar];
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+int test;
 
 typedef struct {
     char *buf[QUEUESIZE];
@@ -24,69 +22,9 @@ typedef struct {
 
 } queue;
 
-queue* queueInit(void);
-char strParse(char *, char** );
-
-void *writeFile(void*);
-void *readFile(void*);
-
-int main() {
-    char **args;
-    int anzahlThreads;
-    
-
-    queue *q = NULL;
-
-    printf("Filename:");
-    fgets(input, MAX_INPUT, stdin);
-    input[strcspn(input, "\n")] = '\0';
-    if ((void *) input[0] == NULL || *input == ' ') {
-
-
-    } else {
-        strParse(input, parse);
-    }
-
-    q = queueInit();
-
-    pthread_t readThread;
-    pthread_create(&readThread, NULL, readFile, q);
-    pthread_join(readThread, NULL);
-
-
-    printf("Anzahl threads:");
-    scanf("%d",&anzahlThreads);
-
-
-    struct timeval tvbegin, tvend;
-    gettimeofday(&tvbegin,NULL);
-
-    pthread_t threadArr[anzahlThreads];
-    for (int i = 0; i < anzahlThreads; i++) {
-        printf("Create thread %d\n", i);
-        pthread_create(&threadArr[i], NULL, writeFile, q);
-    }
-
-    printf("vor multijoin\n");
-    for (int i = 0; i < anzahlThreads; i++) {
-        pthread_join(threadArr[i], NULL);
-    }
-
-
-    gettimeofday(&tvend, NULL);
-
-    printf("%lf\n", (tvend.tv_sec - tvbegin.tv_sec)+(tvend.tv_usec-tvbegin.tv_usec));
 
 
 
-    // code ohne threads //
-    //readFile(q);
-    //writeFile(q);
-
-
-//    queuePrint(q);
-    return 0;
-}
 int queueSize(queue *q) {
     int rtr = (q->tail) - (q->head);
     return rtr;
@@ -171,7 +109,7 @@ char strParse(char *input, char **parse) {
     }
 }
 
-void *readFile(void *q) {
+void *readFd(void *q) {
 
     queue *q2 = (queue *) q;
 
@@ -192,14 +130,15 @@ void *readFile(void *q) {
         pthread_mutex_lock(&lock);
         queueAdd(q2, url);
         pthread_mutex_unlock(&lock);
+        pthread_mutex_destroy(&lock);
     }
     return NULL;
 }
 
-void *writeFile(void *q) {
+void *writeFd(void *q) {
     queue *tmp = (queue *) q;
     char *argv[2];
-    argv[0] = "--webreq-delay 100";
+    argv[0] = "--webreq-delay 0";
     argv[1] = "--webreq-path download";
 
     webreq_init(2, argv);
@@ -209,18 +148,74 @@ void *writeFile(void *q) {
     while (!(tmp->empty)) {
         char *url = strdup(queueRead(q));
         char *downloadUrl = strdup(url);
+
+
+        pthread_mutex_unlock(&lock);
+        pthread_mutex_destroy(&lock);
         strtok(url, "/");
         char *domain = strtok(NULL, "/");
 
+        int id = (int) pthread_self();
+        printf("%d",id);
+
         char filename[64];
-        snprintf(filename, sizeof(filename), "%i_%s.html", i++, domain);
+        snprintf(filename, sizeof(filename), "%i_%s.html", id, domain);
         printf("Downloading URL: %s\n", downloadUrl);
 
         webreq_download(downloadUrl, filename);
     }
-    pthread_mutex_unlock(&lock);
+
 
 
 }
 
+int main() {
+    char **args;
+    int anzahlThreads;
+    queue *q = NULL;
+
+
+    printf("Filename:");
+    fgets(input, MAX_INPUT, stdin);
+    input[strcspn(input, "\n")] = '\0';
+    if ((void *) input[0] == NULL || *input == ' ') {
+        printf("No input");
+        exit(0);
+    } else {
+        strParse(input, parse);
+    }
+
+    q = queueInit();
+
+    pthread_t th;
+    pthread_create(&th, NULL, readFd, q);
+    pthread_join(th, NULL);
+
+
+//download sites
+    printf("Anzahl threads:");
+    scanf("%d",&anzahlThreads);
+
+
+    struct timeval tvbegin, tvend;
+    gettimeofday(&tvbegin,NULL);
+
+    pthread_t threadArr[anzahlThreads];
+    for (int i = 0; i < anzahlThreads; i++) {
+        printf("Create thread %d\n", i);
+        pthread_create(&threadArr[i], NULL, writeFd, q);
+    }
+
+    for (int i = 0; i < anzahlThreads; i++) {
+        pthread_join(threadArr[i], NULL);
+    }
+
+    gettimeofday(&tvend, NULL);
+
+    printf("%lu", (tvend.tv_sec - tvbegin.tv_sec)*1000 +(tvend.tv_usec-tvbegin.tv_usec)/1000); //print duration
+    printf("ms\n");
+
+    return 0;
+
+}
 
