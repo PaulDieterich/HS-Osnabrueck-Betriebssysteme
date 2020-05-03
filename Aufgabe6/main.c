@@ -70,13 +70,15 @@ int main() {
 
     //create threads
     pthread_create(&readerThread, NULL, readFile, q);
+    pthread_join(readerThread, NULL);
+
     for (int i = 0; i < anzahlThreads; i++) {
         printf("Create thread %d\n", i);
         pthread_create(&threadArr[i], NULL, writeFile, q);
     }
 
     //join threads
-    pthread_join(readerThread, NULL);
+
     for (int i = 0; i < anzahlThreads; i++) {
         pthread_join(threadArr[i], NULL);
     }
