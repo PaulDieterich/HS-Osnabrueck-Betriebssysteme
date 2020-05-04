@@ -194,8 +194,8 @@ void *writeFile(void *q) {
 
     webreq_init(2, argv);
 
-    for(int i = 0; i < QUEUESIZE; i++){
-    //while (!(tmp->empty)) {
+    //for(int i = 0; i < QUEUESIZE; i++){
+    while (!(tmp->empty)) {
         pthread_mutex_lock(&tmp->lock);
         /*  if(&tmp->empty){
             printf ("QUEUE IS EMPTY.\n");
