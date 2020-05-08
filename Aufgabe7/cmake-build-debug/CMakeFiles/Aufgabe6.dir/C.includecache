@@ -15,4 +15,8 @@ dirent.h
 -
 stdlib.h
 -
+sys/stat.h
+-
+string.h
+-
 

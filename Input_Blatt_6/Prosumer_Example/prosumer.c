@@ -86,7 +86,6 @@ void *producer (void *q)
 	}
 	return (NULL);
 }
-
 void *consumer (void *q)
 {
 	queue *fifo;
@@ -108,7 +107,7 @@ void *consumer (void *q)
 			pthread_cond_signal (fifo->notFull);
 			printf ("consumer: consumed %d.\n", d);
 			usleep(200000 + j * 300000);
-		}
+		
 	}
 	return (NULL);
 }
