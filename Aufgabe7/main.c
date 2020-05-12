@@ -4,27 +4,12 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <pwd.h>
+#include <grp.h>
 #include <unistd.h>
-void explore1(){
-    struct dirent *entry;
-    printf("Aufgabe7");
+#include <time.h>
 
-    DIR* dir;
-    dir = opendir(".");
-
-    if(dir == NULL){
-        printf("Error!: Unable to open directory. \n");
-        exit(1);
-    }
-
-    while((entry=readdir(dir)) != NULL) {
-        if(entry->d_name[0] != ".") {
-            printf(" %s\n", entry->d_name);
-        }
-    }
-    closedir(dir);
-}
-void explore2(){
+void myLs(int aFlag ,int lFlag,  int gFlag,  int oFlag){
     char *dir_name;
     DIR* dir;
     struct dirent *entry;
@@ -32,69 +17,102 @@ void explore2(){
     dir_name = ".";
     dir = opendir(dir_name);
     if(!dir){ printf("Directory not found\n"); exit(1); }
+
     while((entry=readdir(dir)) != NULL){
-        if(entry->d_name[0] != "."){
-            char* path;
-            snprintf(path, sizeof path, "%s/%s",dir_name,entry->d_name);
-            printf("Entry = %s", path);
-            stat(path, &info);
-            if(S_ISDIR(info.st_mode)){
-                explore2(path);
+        if(entry->d_name[0] != "." || aFlag){
+            stat(entry->d_name, &info);
+            if(gFlag || lFlag || oFlag){
+                printf(S_ISDIR(info.st_mode) ? "d" : "-");
+                printf(info.st_mode & S_IRUSR ? "r" : "-");
+                printf(info.st_mode & S_IWUSR ? "w" : "-");
+                printf(info.st_mode & S_IXUSR ? "x" : "-");
+                printf(info.st_mode & S_IRGRP ? "r" : "-");
+                printf(info.st_mode & S_IWGRP ? "w" : "-");
+                printf(info.st_mode & S_IXGRP ? "x" : "-");
+                printf(info.st_mode & S_IROTH ? "r" : "-");
+                printf(info.st_mode & S_IWOTH ? "w" : "-");
+                printf(info.st_mode & S_IXOTH ? "x" : "-");
             }
+            printf(" %lu",info.st_nlink);
+            if(!oFlag) {
+                struct passwd* usr  = getpwuid(info.st_uid);
+                printf(" %s", usr->pw_name);
+            }
+            if(!gFlag) {
+                struct group *gr = getgrgid(info.st_gid);
+                printf(" %s", gr->gr_name);
+            }
+            printf(" %d", info.st_size);
+
+            //timestamp output
+            char* timestamp[64];struct tm *tmp;
+            strftime(timestamp,sizeof(timestamp),"%b %d %H:%M",tmp);
+            printf(" %s", timestamp);
+
+            printf(" %s\n", entry->d_name);
         }
     }
     closedir(dir);
 }
-void tryGetOpt(int argc, char** argv){
-    int c, digitOption = 0, aopt = 0, bopt = 0;
-    char *copt = 0, *dopt = 0;
-    while((c=getopt(argc, argv, "abc:d:012")) != 1){
-        int thisOptionOptind = optind ? optind : 1;
-        switch (c) {
-            case '0':
-            case '1':
-            case '2':
-                if(digitOption != 0 && digitOption !=thisOptionOptind)
-                    printf("digits occur in two different argv-elements.\n");
-                digitOption = thisOptionOptind;
-                printf("option %c\n",c);
-                break;
-            case'a':
-                printf("option a\n");
-                aopt = 1;
-                break;
-            case 'b':
-                printf("option b\n");
-                bopt = 1;
-                break;
-            case 'c':
-                printf("option c with value '%s'\n", optarg);
-                copt = optarg;
-                break;
-            case 'd':
-                printf("optin d with value '%c'\n", optarg);
-                dopt = optarg;
-                break;
-            case '?':
-                break;
-            default:
-                printf("?? getopt returnd charater code 0%o ?? \n, c");
-        }
-        if(optind < argc){
-            printf("non-option ARGV-elements: ");
-            while (optind < argc){
-                printf("%c",argv[optind++]);
-            }
-            printf("\n");
-        }
-    }
-    exit(0);
-}
-int main(int argc, char* argv[]){
 
-    char* a[] = { "1","a","d"};
-    tryGetOpt(sizeof(a), a);
-   // explore1();
-    //explore2();
-    return 0;
+int main(int argc, char* argv[]){
+        char* dirname = "."; //verweisst auf das aktuelle verzeichnis wo das programm ausgefuehrt wird
+        int flags, opt;
+        int nsecs, aFlag, lFlag, gFlag, oFlag;
+
+        //  -a, --all   do not ignore entries starting with .
+        //  -g          like -l, but do not list owner
+        //  -l          use a long listing format
+        //  -o          like -l, but do not list group information
+
+    nsecs = 0; aFlag = 0;
+        lFlag = 0; gFlag = 0;
+        oFlag = 0; flags = 0;
+        while ((opt = getopt(argc, argv, "algo:")) != -1) {
+            switch (opt) {
+                case 'a':
+                    aFlag = 1;
+                    break;
+                case 'l':
+                    lFlag = 1;
+                    break;
+                case 'p':
+                    gFlag = 1;
+                    break;
+                case 'o':
+                    nsecs = atoi(optarg);
+                    oFlag = 1;
+                    break;
+                default:
+
+
+                    fprintf(stderr, "Unkonwn option -%c\n",optopt);
+                    exit(EXIT_FAILURE);
+
+            }
+        }
+
+        printf("flags=%d; aFlag=%d; lFlag=%d;  gFlag=%d; oFlag=%d; nsecs=%d; optind=%d\n",
+               flags, aFlag,lFlag,gFlag,oFlag,nsecs, optind);
+
+        if (optind >= argc) {
+            fprintf(stderr, "Expected argument after options\n");
+            exit(EXIT_FAILURE);
+        }
+
+        printf("name argument = %s\n", argv[optind]);
+
+        /* Other code omitted */
+
+
+        myLs(aFlag,lFlag,gFlag,oFlag);
+
+
+
+
+
+
+
+        return 0;
+
 }
