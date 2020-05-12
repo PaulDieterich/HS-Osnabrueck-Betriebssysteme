@@ -42,12 +42,21 @@ void myLs(int aFlag ,int lFlag,  int gFlag,  int oFlag){
                 struct group *gr = getgrgid(info.st_gid);
                 printf(" %s", gr->gr_name);
             }
-            printf(" %d", info.st_size);
+            printf(" %ld", info.st_size);
 
             //timestamp output
-            char* timestamp[64];struct tm *tmp;
-            strftime(timestamp,sizeof(timestamp),"%b %d %H:%M",tmp);
-            printf(" %s", timestamp);
+            char* outstr[64];struct tm *tmp;
+            //strftime(timestamp,sizeof(timestamp),"%b %d %H:%M",tmp);
+            //printf(" %s", *timestamp);
+            
+            
+              if (strftime(outstr, sizeof(outstr), entry->d_name, tmp) == 0) {
+                    fprintf(stderr, "strftime returned 0");
+                   // exit(EXIT_FAILURE);
+                }
+            printf(" %sc", outstr);
+
+
 
             printf(" %s\n", entry->d_name);
         }
@@ -57,7 +66,7 @@ void myLs(int aFlag ,int lFlag,  int gFlag,  int oFlag){
 
 int main(int argc, char* argv[]){
         char* dirname = "."; //verweisst auf das aktuelle verzeichnis wo das programm ausgefuehrt wird
-        int flags, opt;
+        int flags, optopt, opt,optind;
         int nsecs, aFlag, lFlag, gFlag, oFlag;
 
         //  -a, --all   do not ignore entries starting with .
@@ -65,7 +74,7 @@ int main(int argc, char* argv[]){
         //  -l          use a long listing format
         //  -o          like -l, but do not list group information
 
-    nsecs = 0; aFlag = 0;
+    nsecs = 0; aFlag = 0; 
         lFlag = 0; gFlag = 0;
         oFlag = 0; flags = 0;
         while ((opt = getopt(argc, argv, "algo:")) != -1) {
@@ -106,12 +115,6 @@ int main(int argc, char* argv[]){
 
 
         myLs(aFlag,lFlag,gFlag,oFlag);
-
-
-
-
-
-
 
         return 0;
 
