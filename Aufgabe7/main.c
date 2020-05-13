@@ -109,7 +109,7 @@ int main(int argc, char* argv[]){
             exit(EXIT_FAILURE);
         }
 
-        printf("name argument = %s\n", argv[optind]);
+
 
         /* Other code omitted */
 
