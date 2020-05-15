@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <sys/types.h>
 #include <dirent.h>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -7,21 +6,19 @@
 #include <pwd.h>
 #include <grp.h>
 #include <unistd.h>
-#include <time.h>
-
-void myLs(int aFlag ,int lFlag,  int gFlag,  int oFlag){
-    char *dir_name;
+void myLs(int aFlag ,int lFlag,  int gFlag,  int oFlag,char *dirPath) {
     DIR* dir;
-    struct dirent *entry;
-    struct stat info;
-    dir_name = ".";
-    dir = opendir(dir_name);
-    if(!dir){ printf("Directory not found\n"); exit(1); }
-
-    while((entry=readdir(dir)) != NULL){
-        if(entry->d_name[0] != "." || aFlag){
+    struct dirent *entry; struct stat info; char *ctime();
+    if ((dir = opendir(dirPath)) == NULL) {
+        fprintf(stderr, "ls: can not open %s\n", dirPath);
+        exit(EXIT_FAILURE);
+    } else {
+        while ((entry = readdir(dir)) != NULL) {
+            if (entry->d_name[0] == '.' && !aFlag) {
+                continue;
+            }
             stat(entry->d_name, &info);
-            if(gFlag || lFlag || oFlag){
+            if (lFlag || oFlag || gFlag) {
                 printf(S_ISDIR(info.st_mode) ? "d" : "-");
                 printf(info.st_mode & S_IRUSR ? "r" : "-");
                 printf(info.st_mode & S_IWUSR ? "w" : "-");
@@ -32,52 +29,36 @@ void myLs(int aFlag ,int lFlag,  int gFlag,  int oFlag){
                 printf(info.st_mode & S_IROTH ? "r" : "-");
                 printf(info.st_mode & S_IWOTH ? "w" : "-");
                 printf(info.st_mode & S_IXOTH ? "x" : "-");
-            }
-            printf(" %lu",info.st_nlink);
-            if(!oFlag) {
-                struct passwd* usr  = getpwuid(info.st_uid);
-                printf(" %s", usr->pw_name);
-            }
-            if(!gFlag) {
-                struct group *gr = getgrgid(info.st_gid);
-                printf(" %s", gr->gr_name);
-            }
-            printf(" %ld", info.st_size);
-
-            //timestamp output
-            char* outstr[64];struct tm *tmp;
-            //strftime(timestamp,sizeof(timestamp),"%b %d %H:%M",tmp);
-            //printf(" %s", *timestamp);
-            
-            
-              if (strftime(outstr, sizeof(outstr), entry->d_name, tmp) == 0) {
-                    fprintf(stderr, "strftime returned 0");
-                   // exit(EXIT_FAILURE);
+                printf("%4d",(int)info.st_nlink);
+                if(!gFlag) {
+                    struct passwd *usr = getpwuid(info.st_uid);
+                    printf(" %ss", usr->pw_name);
                 }
-            printf(" %sc", outstr);
+                if(!oFlag) {
+                    struct group *gr = getgrgid(info.st_gid);
+                    printf(" %s", gr->gr_name);
+                }
 
-
-
-            printf(" %s\n", entry->d_name);
+                printf("%8d",(int)info.st_size);
+                printf(" %.12s ", 4+ctime(&info.st_mtime));
+            }
+            printf("  %s", entry->d_name);
+            printf("  ");
+            if (lFlag || oFlag || gFlag) {
+                printf("\n");
+            }
         }
     }
+    printf("\n");
     closedir(dir);
 }
-
 int main(int argc, char* argv[]){
-        char* dirname = "."; //verweisst auf das aktuelle verzeichnis wo das programm ausgefuehrt wird
-        int flags, optopt, opt,optind;
-        int nsecs, aFlag, lFlag, gFlag, oFlag;
+        char* dirname; //= "."; //verweisst auf das aktuelle verzeichnis wo das programm ausgefuehrt wird
+        int opt;
 
-        //  -a, --all   do not ignore entries starting with .
-        //  -g          like -l, but do not list owner
-        //  -l          use a long listing format
-        //  -o          like -l, but do not list group information
-
-    nsecs = 0; aFlag = 0; 
-        lFlag = 0; gFlag = 0;
-        oFlag = 0; flags = 0;
-        while ((opt = getopt(argc, argv, "algo:")) != -1) {
+        int aFlag = 0;  int lFlag = 0;
+        int gFlag = 0;  int oFlag = 0;
+        while ((opt = getopt(argc, argv, "algo")) != -1) {
             switch (opt) {
                 case 'a':
                     aFlag = 1;
@@ -85,37 +66,23 @@ int main(int argc, char* argv[]){
                 case 'l':
                     lFlag = 1;
                     break;
-                case 'p':
+                case 'g':
                     gFlag = 1;
                     break;
                 case 'o':
-                    nsecs = atoi(optarg);
                     oFlag = 1;
                     break;
-                default:
-
-
-                    fprintf(stderr, "Unkonwn option -%c\n",optopt);
-                    exit(EXIT_FAILURE);
-
             }
         }
 
-        printf("flags=%d; aFlag=%d; lFlag=%d;  gFlag=%d; oFlag=%d; nsecs=%d; optind=%d\n",
-               flags, aFlag,lFlag,gFlag,oFlag,nsecs, optind);
+        printf("aFlag=%d; lFlag=%d;  gFlag=%d; oFlag=%d; optind=%d\n",aFlag,lFlag,gFlag,oFlag, optind);
 
-        if (optind >= argc) {
-            fprintf(stderr, "Expected argument after options\n");
-            exit(EXIT_FAILURE);
+        if (optind == argc) {
+            dirname=".";
+        }else{
+            dirname = argv[optind];
         }
-
-
-
-        /* Other code omitted */
-
-
-        myLs(aFlag,lFlag,gFlag,oFlag);
-
+        myLs(aFlag,lFlag,gFlag,oFlag,dirname);
         return 0;
 
 }
