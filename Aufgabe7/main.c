@@ -9,6 +9,7 @@
 void myLs(int aFlag ,int lFlag,  int gFlag,  int oFlag,char *dirPath) {
     DIR* dir;
     struct dirent *entry; struct stat info; char *ctime();
+    printf("dirpath: %s\n ", dirPath);
     if ((dir = opendir(dirPath)) == NULL) {
         fprintf(stderr, "ls: can not open %s\n", dirPath);
         exit(EXIT_FAILURE);
@@ -32,11 +33,11 @@ void myLs(int aFlag ,int lFlag,  int gFlag,  int oFlag,char *dirPath) {
                 printf("%4d",(int)info.st_nlink);
                 if(!gFlag) {
                     struct passwd *usr = getpwuid(info.st_uid);
-                    printf(" %ss", usr->pw_name);
+                    printf(" %8s", usr->pw_name);
                 }
                 if(!oFlag) {
                     struct group *gr = getgrgid(info.st_gid);
-                    printf(" %s", gr->gr_name);
+                    //printf(" %8s", gr->gr_name);
                 }
 
                 printf("%8d",(int)info.st_size);
@@ -54,8 +55,7 @@ void myLs(int aFlag ,int lFlag,  int gFlag,  int oFlag,char *dirPath) {
 }
 int main(int argc, char* argv[]){
         char* dirname; //= "."; //verweisst auf das aktuelle verzeichnis wo das programm ausgefuehrt wird
-        int opt;
-
+        int opt; int count;
         int aFlag = 0;  int lFlag = 0;
         int gFlag = 0;  int oFlag = 0;
         while ((opt = getopt(argc, argv, "algo")) != -1) {
@@ -76,12 +76,13 @@ int main(int argc, char* argv[]){
         }
 
         printf("aFlag=%d; lFlag=%d;  gFlag=%d; oFlag=%d; optind=%d\n",aFlag,lFlag,gFlag,oFlag, optind);
-
+        printf("%d,%d\n",argc,optind);
         if (optind == argc) {
             dirname=".";
         }else{
             dirname = argv[optind];
         }
+        printf("dirname: %s\n",dirname);
         myLs(aFlag,lFlag,gFlag,oFlag,dirname);
         return 0;
 
