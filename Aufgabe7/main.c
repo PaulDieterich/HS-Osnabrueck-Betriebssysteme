@@ -9,6 +9,8 @@
 void myLs(int aFlag ,int lFlag,  int gFlag,  int oFlag,char *dirPath) {
     DIR* dir;
     struct dirent *entry; struct stat info; char *ctime();
+    char* fullpath = realpath(dirPath,NULL);
+    printf("%s",fullpath );
     printf("dirpath: %s\n ", dirPath);
     if ((dir = opendir(dirPath)) == NULL) {
         fprintf(stderr, "ls: can not open %s\n", dirPath);
@@ -18,7 +20,7 @@ void myLs(int aFlag ,int lFlag,  int gFlag,  int oFlag,char *dirPath) {
             if (entry->d_name[0] == '.' && !aFlag) {
                 continue;
             }
-            stat(entry->d_name, &info);
+            stat(fullpath, &info);
             if (lFlag || oFlag || gFlag) {
                 printf(S_ISDIR(info.st_mode) ? "d" : "-");
                 printf(info.st_mode & S_IRUSR ? "r" : "-");
@@ -37,7 +39,7 @@ void myLs(int aFlag ,int lFlag,  int gFlag,  int oFlag,char *dirPath) {
                 }
                 if(!oFlag) {
                     struct group *gr = getgrgid(info.st_gid);
-                    //printf(" %8s", gr->gr_name);
+                    printf(" %8s", gr->gr_name);
                 }
 
                 printf("%8d",(int)info.st_size);
