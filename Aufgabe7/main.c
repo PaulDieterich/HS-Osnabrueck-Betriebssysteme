@@ -22,7 +22,7 @@ void myLs(int aFlag ,int lFlag,  int gFlag,  int oFlag,char *dirPath) {
             char* tmp = realpath(dirPath,NULL);
             strcat(tmp,"/");
             strcat(tmp,entry->d_name);
-           // printf("%s",fuckyou);
+
 
             stat(tmp, &info);
             if (lFlag || oFlag || gFlag) {

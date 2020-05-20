@@ -9,8 +9,6 @@
 /home/pjd-vm/Betriebssysteme/Aufgabe7/main.c
 stdio.h
 -
-sys/types.h
--
 dirent.h
 -
 stdlib.h
@@ -18,5 +16,11 @@ stdlib.h
 sys/stat.h
 -
 string.h
+-
+pwd.h
+-
+grp.h
+-
+unistd.h
 -
 
