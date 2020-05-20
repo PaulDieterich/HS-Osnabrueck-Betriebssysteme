@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <dirent.h>
 #include <stdlib.h>
@@ -9,9 +10,7 @@
 void myLs(int aFlag ,int lFlag,  int gFlag,  int oFlag,char *dirPath) {
     DIR* dir;
     struct dirent *entry; struct stat info; char *ctime();
-    char* fullpath = realpath(dirPath,NULL);
-    printf("%s",fullpath );
-    printf("dirpath: %s\n ", dirPath);
+
     if ((dir = opendir(dirPath)) == NULL) {
         fprintf(stderr, "ls: can not open %s\n", dirPath);
         exit(EXIT_FAILURE);
@@ -20,7 +19,12 @@ void myLs(int aFlag ,int lFlag,  int gFlag,  int oFlag,char *dirPath) {
             if (entry->d_name[0] == '.' && !aFlag) {
                 continue;
             }
-            stat(fullpath, &info);
+            char* tmp = realpath(dirPath,NULL);
+            char* tmptmp = strcat(tmp,"/");
+            char* tmptmptmp = strcat(tmptmp,entry->d_name);
+           // printf("%s",fuckyou);
+
+            stat(tmptmptmp, &info);
             if (lFlag || oFlag || gFlag) {
                 printf(S_ISDIR(info.st_mode) ? "d" : "-");
                 printf(info.st_mode & S_IRUSR ? "r" : "-");
