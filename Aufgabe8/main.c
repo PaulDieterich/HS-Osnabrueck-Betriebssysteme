@@ -3,7 +3,14 @@
 #include <unistd.h>
 #include <stdio.h>
 
-
+/**
+ * t - list content
+ * v - Verbosely show the .tar file progress
+ * f - filename type of the archive file
+ *
+ * - rechte  - owner/group - groeße - datum urhzeit - datei pfad
+ *
+ */
 
 struct posix_header
 {
@@ -26,31 +33,57 @@ struct posix_header
     char prefix[155];             /* 345 */
     /* 500 */
 };
+void* readByteWise(int filename, int from, int bytes){
+    lseek(filename, from, SEEK_SET);
+    void* buf = malloc(bytes*sizeof(char));
+    return read(filename, buf,bytes); //return buf
+}
+
+int getSize(char* string){
+    char* c;
+    for(c = string; *c != '\0';c++);
+    return c - string;
+}
+int stdOutput(char* text){ //standat output zur text ausgabe
+    write(STDOUT_FILENO,text,getSize(text));
+}
+int errOutput(char* text){ //error output zur error ausgabe
+    write(STDERR_FILENO,text,getSize(text));
+}
+int check_Ustar(char* filename, void *buf, long offset) {
+
+    int fdes = open(filename, O_RDONLY);
+    if (lseek(fdes, 257, SEEK_SET) < 0) {
 
 
-int check_Ustar(int fd,char* buffer,long length){
-    FILE* f = fdopen(fd,buffer);
+        buf = malloc(6 * sizeof(char));
+        read(fdes, buf, 6);
+        if (*((int *) buf) != *((int *) "ustar")) {
+            stdOutput(filename);// << endl;
+            stdOutput(" is not an Ustar File");// << endl;
+            return 0;
+        }
+        return 1;
+    }
+}
+
+
+/*   FILE* f = fdopen(fd,buffer);
     lseek(fd,0,SEEK_END);
     length = ftell(f);
     lseek(fd,0,SEEK_SET);
     buffer = (char*) malloc(length);
     return read(fd,buffer,length);
-}
-
-int main(int argc, char* argv[])
-{
-    char* buffer = 0;
-    long length;
-    //FILE* f
-    int fd = open(argv[1], O_RDWR);
-    if(fd != -1){
-        if(check_Ustar(fd,buffer,length) != -1){
-            printf("genug bytes ausgelesen.");
-        }
     }
-    else{
-        fprintf(stderr,"File nicht gefunden");
-    }
+*/
+int main(int argc, char* argv[]){
+    void* buf;
+    long offset = 0;
+  for(int i = 1; i < argc; i++){
+      if(check_Ustar(argv[i],buf,offset)){ // check_Ustart gibt 1(True) und 0(False)
+          continue;
+      }
+  }
 
     return 0;
 }
