@@ -51,10 +51,7 @@ long power(long a, long n){
   }
   return x;
 }
-time_t showTime(long time){
-time_t tmp = time;
-return tmp;
-}
+
 long octalToDecimal(char* num){
   long octalnum = atol(num);
   long decimalnum = 0, i = 0;
@@ -70,15 +67,13 @@ long octalToDecimal(char* num){
 }
 //https://stackoverflow.com/questions/18858115/c-long-long-to-char-conversion-function-in-embedded-system
 //von Charlie Burns
+// wurde von mir erweitert
 char* itoa(int val, int base){
-
     static char buf[8] = {0};
-
     int i = 6;
 
     for(; val && i ; --i, val /= base)
         buf[i] = "0123456789abcdef "[val % base];
-
 
     while(i < sizeof(buf)){
       buf[i] = ' ';
@@ -91,18 +86,6 @@ void stdNormalOutput(char* text){
 }
 void stdErrorOutput(char* text){
    write(STDERR_FILENO, text, getSize(text));
-}
-
-time_t parse_time(const char time[]) {
-    time_t ret = 0;
-    unsigned long mult = 1;
-    for (int i = TIME_SIZE; i >= 0; i--) {
-        if (time[i] != '\000') {
-            ret += (time[i] - '0') * mult;
-            mult *= 8;
-        }
-    }
-    return ret;
 }
 
 int checkUstar() {
@@ -181,41 +164,12 @@ void formatModeBits(char *strMode) {
     case USTAR_LNKTYPE: strMode[0]  = 'l'; break;
     case USTAR_FIFOTYPE: strMode[0] = 'p'; break;
     case USTAR_REGTYPE: strMode[0] = '-'; break;
-    default:
-        strMode[0] = '?';
+    default: strMode[0] = '?';
     }
-
     ownerACL(strMode);
     groupACL(strMode);
     ownerACL(strMode);
-
     strMode[10] = '\0';
-
-}
-
-void readTar(int fd) {
-    lseek(fd, 0, SEEK_SET);
-    while (read(fd, &buffer, NUMBER_BYTES) > 0) {
-        if (checkUstar() == 1) {
-            char strMode[10];
-            formatModeBits(strMode);
-            stdNormalOutput(strMode);
-            stdNormalOutput(" ");
-            stdNormalOutput(buffer.uname);
-            stdNormalOutput( "/");
-            stdNormalOutput(buffer.gname);
-            stdNormalOutput( " ");
-            stdNormalOutput(itoa(octalToDecimal(buffer.size),10));
-            stdNormalOutput( " ");
-            time_t time = octalToDecimal(buffer.mtime);
-            char timeStr[TIME_SIZE];
-            strftime(timeStr, TIME_SIZE, "%Y-%m-%d %H:%M", localtime(&time));
-            stdNormalOutput(timeStr);
-            stdNormalOutput(" ");
-            stdNormalOutput(buffer.name);
-            stdNormalOutput("\n");
-        }
-    }
 }
 int main(int argc, char *argv[]) {
     int fd;
@@ -224,8 +178,30 @@ int main(int argc, char *argv[]) {
     } else  {
         read(fd, &buffer, NUMBER_BYTES);
     }
-	  if (checkUstar() == 1)
-        readTar(fd);
+	  if (checkUstar() == 1){
+      lseek(fd, 0, SEEK_SET);
+      while (read(fd, &buffer, NUMBER_BYTES) > 0) {
+          if (checkUstar() == 1) {
+              char strMode[10];
+              formatModeBits(strMode);
+              stdNormalOutput(strMode);
+              stdNormalOutput(" ");
+              stdNormalOutput(buffer.uname);
+              stdNormalOutput( "/");
+              stdNormalOutput(buffer.gname);
+              stdNormalOutput( " ");
+              stdNormalOutput(itoa(octalToDecimal(buffer.size),10));
+              stdNormalOutput( " ");
+              time_t time = octalToDecimal(buffer.mtime);
+              char timeStr[TIME_SIZE];
+              strftime(timeStr, TIME_SIZE, "%Y-%m-%d %H:%M", localtime(&time));
+              stdNormalOutput(timeStr);
+              stdNormalOutput(" ");
+              stdNormalOutput(buffer.name);
+              stdNormalOutput("\n");
+          }
+      }
+    }
     close(fd);
     return 0;
 }
