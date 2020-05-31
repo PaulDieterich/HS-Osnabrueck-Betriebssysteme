@@ -64,7 +64,7 @@ long octalToDecimal(char* num){
     ++i;
     octalnum /= 10;
   }
-  
+
   i = 1;
   return decimalnum;
 }
@@ -222,14 +222,10 @@ int main(int argc, char *argv[]) {
     if ((fd = open(argv[1], O_RDONLY)) == -1) {
         stdErrorOutput("Datei kann nicht geöffnet werden.");
     } else  {
-    	printf("readig start\n");
         read(fd, &buffer, NUMBER_BYTES);
-    	printf("reading end\n");
     }
-	printf("%d",checkUstar());
-    if (checkUstar() == 1)
+	  if (checkUstar() == 1)
         readTar(fd);
     close(fd);
     return 0;
 }
-
